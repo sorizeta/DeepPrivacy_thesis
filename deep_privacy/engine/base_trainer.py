@@ -35,6 +35,7 @@ class BaseTrainer:
         for hook in self.hooks.values():
             hook.before_extend()
 
+    # Called by train in progressive trainer.py
     def before_train(self):
         for hook in self.hooks.values():
             hook.before_train()

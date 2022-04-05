@@ -3,7 +3,7 @@ from deep_privacy import torch_utils, logger
 from .trainer import Trainer
 from deep_privacy.dataset import build_dataloader_train, build_dataloader_val
 
-
+# Called during training
 class ProgressiveTrainer(Trainer):
 
     def __init__(self, cfg):
@@ -108,7 +108,9 @@ class ProgressiveTrainer(Trainer):
         while True:
             self.train_step()
 
+    # Called for training
     def train(self):
+        # See base_trainer.py; sets beta parameter for RA generator
         self.before_train()
         while self.current_imsize() != self.cfg.models.max_imsize:
             if self._get_phase() == "grow":

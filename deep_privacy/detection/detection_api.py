@@ -8,6 +8,8 @@ from deep_privacy.box_utils import clip_box, expand_bbox, cut_face
 from . import keypoint_rcnn
 from .build import DETECTOR_REGISTRY
 from .utils import match_bbox_keypoint
+from MtcnnPycaffe import MtcnnDetector
+import PyLandmark as LandmarkDetector
 
 
 def tight_crop(array):
@@ -236,7 +238,6 @@ class ImageAnnotation:
                 im[y0:y1, x0:x1] = cv2.resize(face, orig_shape)
         return im
 
-
 @DETECTOR_REGISTRY.register_module
 class BaseDetector:
 
@@ -310,3 +311,40 @@ class RCNNDetector(BaseDetector):
         im_bboxes = self.detect_faces(images, im_bboxes)
         keypoints = self.keypoint_detector.batch_detect_keypoints(images)
         return self.post_process_detections(images, im_bboxes, keypoints)
+
+
+@DETECTOR_REGISTRY.register_module
+class PyLandmarkDetector(BaseDetector):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.face_detector = MtcnnDetector()
+        LandmarkDetector.create("./model/")
+
+
+    def detect_faces(self, images, im_bboxes):
+        if im_bboxes is None or len(im_bboxes) == 0:
+            im_bboxes = []
+            for im in images:
+                boxes, _ = self.detector.detect_face(im)
+                im_bboxes.append(boxes.astype(int))
+        return im_bboxes
+
+
+    def detect_keypoints(self, images, bboxes):
+        keypoints = []
+        for idx, im in enumerate(images):
+            rect = [int(bboxes[idx][0]), int(bboxes[idx][1]), 
+                    int(bboxes[idx][2]-bboxes[idx][0]), int(bboxes[idx][3]-bboxes[idx][1])]
+            pts = LandmarkDetector.detect(im, rect, [], 1)
+            keypoints.append(pts)       
+           
+        return keypoints
+
+
+    def get_detections(self, images, im_bboxes=None):
+        im_bboxes = self.detect_faces(images, im_bboxes)
+        keypoints = self.detect_keypoints(images, im_bboxes)
+        return self.post_process_detections(images, im_bboxes, keypoints)
+
+
+

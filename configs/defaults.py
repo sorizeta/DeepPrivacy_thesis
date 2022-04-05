@@ -172,6 +172,30 @@ data_val = dict(
     )
 )
 
+# anonymizer = dict(
+#     truncation_level=0,
+#     save_debug=False,
+#     batch_size=1,
+#     fp16_inference=False,
+#     jit_trace=False,
+#     detector_cfg=dict(
+#         type="BaseDetector",
+#         keypoint_threshold=.2,
+#         densepose_threshold=.3,
+#         simple_expand=True,
+#         align_faces=False,
+#         resize_background=True,
+#         face_detector_cfg=dict(
+#             name="RetinaNetResNet50",
+#             confidence_threshold=.3,
+#             nms_iou_threshold=.3,
+#             max_resolution=1080,
+#             fp16_inference=True,
+#             clip_boxes=True
+#         )
+#     )
+# )
+
 anonymizer = dict(
     truncation_level=0,
     save_debug=False,
@@ -179,7 +203,7 @@ anonymizer = dict(
     fp16_inference=False,
     jit_trace=False,
     detector_cfg=dict(
-        type="BaseDetector",
+        type="PylandmarkDetector",
         keypoint_threshold=.2,
         densepose_threshold=.3,
         simple_expand=True,
