@@ -1,5 +1,6 @@
 
 _base_config_ = "../celebA-HQ.py"
+model_url = "../../outputs/gcpr/celebA256/checkpoints/step_200000.ckpt"
 model_size=256
 models = dict(
     max_imsize=256,
@@ -31,7 +32,7 @@ trainer = dict(
         enabled=False
     ),
     batch_size_schedule={
-        256: 32
+        256: 8
     },
     optimizer=dict(
         learning_rate=0.0015

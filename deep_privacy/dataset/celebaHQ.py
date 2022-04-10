@@ -11,7 +11,8 @@ class CelebAHQDataset(CustomDataset):
         self.is_train = is_train
 
     def _load_impaths(self):
-        image_dir = self.dirpath.joinpath(str(self.imsize))
+        #image_dir = self.dirpath.joinpath(str(self.imsize))
+        image_dir = self.dirpath
         image_paths = list(image_dir.glob("*.png"))
         image_paths.sort(key=lambda x: int(x.stem))
         return image_paths
