@@ -28,6 +28,9 @@ class FDFDataset(CustomDataset):
         self.bounding_boxes = bbox[:len(self)]
         assert len(self.bounding_boxes) == len(self)
 
+    ### Trovata trovata yeeeeee
+    ### Caricamento landmark
+
     def load_landmarks(self):
         filepath = self.dirpath.joinpath("landmarks.npy")
         assert filepath.is_file(), \
@@ -92,7 +95,7 @@ class FDFRetinaNetPose(FDFDataset):
         with open(discared_images_fp, "r") as f:
             discared_indices = f.readlines()
             discared_indices = [
-                int(_.strip()) for _ in discared_indices
+                int(_.strip()) for _ in discared_indices 
                 if _.strip() != ""]
             discared_indices = set(discared_indices)
         keep_indices = set(range(len(self.image_paths)))

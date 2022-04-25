@@ -3,11 +3,17 @@ import typing
 import torch
 import face_detection
 import cv2
+import sys
 from deep_privacy import torch_utils
 from deep_privacy.box_utils import clip_box, expand_bbox, cut_face
 from . import keypoint_rcnn
 from .build import DETECTOR_REGISTRY
 from .utils import match_bbox_keypoint
+
+detector_dir = '../face-datasets/'
+sys.path.insert(0, detector_dir+'facealign')
+sys.path.insert(0, detector_dir+'util')
+
 from MtcnnPycaffe import MtcnnDetector
 import PyLandmark as LandmarkDetector
 
@@ -333,8 +339,9 @@ class PyLandmarkDetector(BaseDetector):
     def detect_keypoints(self, images, bboxes):
         keypoints = []
         for idx, im in enumerate(images):
-            rect = [int(bboxes[idx][0]), int(bboxes[idx][1]), 
-                    int(bboxes[idx][2]-bboxes[idx][0]), int(bboxes[idx][3]-bboxes[idx][1])]
+            image_bboxes = bboxes[idx]
+            rect = [int(image_bboxes[idx][0]), int(image_bboxes[idx][1]), 
+                    int(image_bboxes[idx][2]-image_bboxes[idx][0]), int(image_bboxes[idx][3]-image_bboxes[idx][1])]
             pts = LandmarkDetector.detect(im, rect, [], 1)
             keypoints.append(pts)       
            
