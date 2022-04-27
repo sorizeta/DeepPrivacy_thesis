@@ -46,12 +46,12 @@ if os.path.exists(source_path):
     source_path = os.path.abspath(source_path)
 
     with open(dest_path + '/features.csv', 'a') as csv_file:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=16) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             file_list = glob.glob(source_path + '/*.jpg')
             future_proc = {executor.submit(detect_features, f): f for f in file_list}
             for future in concurrent.futures.as_completed(future_proc):
                 filename, box, lnd = future.result()
                 writer = csv.writer(csv_file)
-                writer.writerow([f, box, lnd])
+                writer.writerow([filename, box, lnd])
 
 
