@@ -35,7 +35,7 @@ class FDFDataset(CustomDataset):
         filepath = self.dirpath.joinpath("landmarks.npy")
         assert filepath.is_file(), \
             f"Did not find landmarks at: {filepath}"
-        landmarks = np.load(filepath).reshape(-1, 7, 2)
+        landmarks = np.load(filepath).reshape(-1, 68, 2)
         landmarks = landmarks.astype(np.float32)
         self.landmarks = landmarks[:len(self)]
         assert len(self.landmarks) == len(self),\

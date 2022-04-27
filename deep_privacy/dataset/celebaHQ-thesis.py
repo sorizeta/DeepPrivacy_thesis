@@ -14,22 +14,26 @@ class CelebAHQDataset(CustomDataset):
         self.load_bounding_box()
 
     def _load_impaths(self):
-        #image_dir = self.dirpath.joinpath(str(self.imsize))
         image_dir = self.dirpath
-        image_paths = list(image_dir.glob("*.png"))
+        image_paths = list(image_dir.glob("*.jpg"))
         image_paths.sort(key=lambda x: int(x.stem))
         return image_paths
 
     def get_mask(self, idx):
-        return generate_mask(
-            (self.imsize, self.imsize), fixed_mask=not self.is_train)
+        mask = np.ones((self.imsize, self.imsize), dtype=np.bool)
+        bounding_box = self.bounding_boxes[idx]
+        x0, y0, x1, y1 = bounding_box
+        mask[y0:y1, x0:x1] = 0
 
-    # TODO: implement bounding boxes and landmarks
+        return mask
 
     def load_bounding_box(self):
-        filepath = self.dirpath.joinpath(
-            "bounding_box", f"{self.imsize}.torch")
-        bbox = load_torch(filepath)
+        # I think I'll add an option here
+        # An if is better
+        filepath = self.dirpath.joinpath("bounding_boxes.npy")
+        assert filepath.is_file(), \
+            f"Did not find bounding boxes at: {filepath}"
+        bbox = np.load(filepath)
         self.bounding_boxes = bbox[:len(self)]
         assert len(self.bounding_boxes) == len(self)
 
