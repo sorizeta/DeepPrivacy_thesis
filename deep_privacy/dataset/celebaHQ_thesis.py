@@ -6,7 +6,7 @@ import pandas as pd
 
 
 @DATASET_REGISTRY.register_module
-class CelebAHQDataset(CustomDataset):
+class CelebAHQThesis(CustomDataset):
 
     def __init__(self, *args, is_train, **kwargs):
         super().__init__(*args, **kwargs)

@@ -6,12 +6,11 @@ models = dict(
     pose_size=0
 )
 
-dataset_type = "CelebAHQDataset"
-data_root = os.path.join("data", "celebA-HQ")
+dataset_type = "CelebAHQThesis"
 data_train = dict(
     dataset=dict(
         type=dataset_type,
-        dirpath="/datasets/celeba/celeba-hq/256x256",
+        dirpath="/datasets/celeba/img_celeba",
         percentage=1.0,
         is_train=True
     ),
@@ -22,7 +21,7 @@ data_train = dict(
 data_val = dict(
     dataset=dict(
         type=dataset_type,
-        dirpath=os.path.join("/home/ubuntu/celeba-test-256/"),
+        dirpath=os.path.join("/home/ubuntu/test_img_celeba/"),
         percentage=.2,
         is_train=False
     ),
