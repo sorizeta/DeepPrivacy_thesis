@@ -2,6 +2,7 @@ from .mask_util import generate_mask
 from .custom import CustomDataset
 from .build import DATASET_REGISTRY
 import numpy as np
+import pandas as pd
 
 
 @DATASET_REGISTRY.register_module
@@ -30,21 +31,22 @@ class CelebAHQDataset(CustomDataset):
     def load_bounding_box(self):
         # I think I'll add an option here
         # An if is better
-        filepath = self.dirpath.joinpath("bounding_boxes.npy")
+        filepath = "/home/ubuntu/parsed_boxes.csv"
         assert filepath.is_file(), \
             f"Did not find bounding boxes at: {filepath}"
-        bbox = np.load(filepath)
+        file_boxes = pd.read_csv(filepath, header=None, names=["filename", "bounding_boxes"])
+        bbox = np.stack(file_boxes["bounding_boxes"].values)
         self.bounding_boxes = bbox[:len(self)]
         assert len(self.bounding_boxes) == len(self)
 
-    ### Trovata trovata yeeeeee
-    ### Caricamento landmark
 
     def load_landmarks(self):
-        filepath = self.dirpath.joinpath("landmarks.npy")
+        filepath = "/home/ubuntu/parsed_landmarks.csv"
         assert filepath.is_file(), \
             f"Did not find landmarks at: {filepath}"
-        landmarks = np.load(filepath).reshape(-1, 7, 2)
+        landmarks_file = pd.read_csv(filepath, header=None, names=["filename", "landmarks"])
+        landmarks = np.stack(landmarks_file["landmarks"].values)
+        landmarks = np.reshape(-1, 68, 2)
         landmarks = landmarks.astype(np.float32)
         self.landmarks = landmarks[:len(self)]
         assert len(self.landmarks) == len(self),\
