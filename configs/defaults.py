@@ -148,7 +148,7 @@ data_train = dict(
     ),
     transforms=[
         dict(type="RandomFlip", flip_ratio=0.5),
-        dict(type="FlattenLandmark")
+        dict(type="Flatten")
     ],
     loader=dict(
         shuffle=True,

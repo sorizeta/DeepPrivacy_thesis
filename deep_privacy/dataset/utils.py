@@ -44,6 +44,7 @@ def read_image(filepath, format=None):
 def fast_collate(batch):
     has_landmark = "landmarks" in batch[0]
     imshape = batch[0]["img"].shape[:2]
+    # le immagini devono avere tutte la stessa dimensione!
     images = torch.zeros(
         (len(batch), 3, *imshape), dtype=torch.uint8)
     masks = torch.zeros(

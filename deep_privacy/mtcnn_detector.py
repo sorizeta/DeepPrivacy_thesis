@@ -22,7 +22,7 @@ def detect_features(image_path):
             int(box[2]-box[0]), int(box[3]-box[1])]
     
     pts = LandmarkDetector.detect(im, rect, [], 1)
-    return f, box, pts
+    return image_path, box, pts
 
 detector_dir = './face-datasets/'
 sys.path.insert(0, detector_dir+'facealign')
