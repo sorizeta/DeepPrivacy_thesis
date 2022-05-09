@@ -20,9 +20,16 @@ def detect_features(image_path):
     # [x0, y0, x1, y1]
     rect = [int(box[0]), int(box[1]), 
             int(box[2]-box[0]), int(box[3]-box[1])]
+
     
     pts = LandmarkDetector.detect(im, rect, [], 1)
-    return image_path, box, pts
+    rect = np.asarray(rect, dtype=int)
+    pts = np.asarray(pts, dtype=int)
+    with open(dest_path + '/features_test.csv', 'a') as csv_file:
+         writer = csv.writer(csv_file)
+         writer.writerow([image_path, rect, pts])
+    
+    return rect, pts
 
 detector_dir = './face-datasets/'
 sys.path.insert(0, detector_dir+'facealign')
@@ -45,13 +52,7 @@ landmark_detector = LandmarkDetector.create("./detection/model/")
 if os.path.exists(source_path):
     source_path = os.path.abspath(source_path)
 
-    with open(dest_path + '/features.csv', 'a') as csv_file:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
-            file_list = glob.glob(source_path + '/*.jpg')
+    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+            file_list = glob.glob(source_path + '/*.png')
+            print(file_list)
             future_proc = {executor.submit(detect_features, f): f for f in file_list}
-            for future in concurrent.futures.as_completed(future_proc):
-                filename, box, lnd = future.result()
-                writer = csv.writer(csv_file)
-                writer.writerow([filename, box, lnd])
-
-
