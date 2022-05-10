@@ -162,7 +162,8 @@ class LossOptimizer:
         for i in range(len(real_scores)):
             log[f"real_score{i}"] = real_scores[i].mean().detach()
         for _, fake_score in fake_scores.items():
-            log[f"fake_score{i}"] = fake_score.mean().detach()
+
+            log[f"fake_score{i}"] = fake_score[0].mean().detach()
         return log
 
     def step_G(self, batch):

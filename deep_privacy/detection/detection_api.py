@@ -10,7 +10,7 @@ from . import keypoint_rcnn
 from .build import DETECTOR_REGISTRY
 from .utils import match_bbox_keypoint
 
-detector_dir = '../face-datasets/'
+detector_dir = '/home/ubuntu/networks/DeepPrivacy/deep_privacy/face-datasets/'
 sys.path.insert(0, detector_dir+'facealign')
 sys.path.insert(0, detector_dir+'util')
 

@@ -2,7 +2,11 @@ import os
 
 _base_config_ = "defaults.py"
 
+model_url = "outputs/celebA-HQ-th/checkpoints/step_200000.ckpt"
+
 models = dict(
+    min_imsize=256,
+    max_imsize=256,
     pose_size=0
 )
 

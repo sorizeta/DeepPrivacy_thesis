@@ -3,7 +3,12 @@ from .custom import CustomDataset
 from .build import DATASET_REGISTRY
 import numpy as np
 import pandas as pd
+import os
 
+def parse_arrays(row, col_name):
+    lnd = row[col_name][1:-1]
+    image_lnd = np.fromstring(lnd, sep=" ", dtype=int)
+    return image_lnd
 
 @DATASET_REGISTRY.register_module
 class CelebAHQThesis(CustomDataset):
@@ -16,7 +21,7 @@ class CelebAHQThesis(CustomDataset):
 
     def _load_impaths(self):
         image_dir = self.dirpath
-        image_paths = list(image_dir.glob("*.jpg"))
+        image_paths = list(image_dir.glob("*.png"))
         image_paths.sort(key=lambda x: int(x.stem))
         return image_paths
 
@@ -31,22 +36,33 @@ class CelebAHQThesis(CustomDataset):
     def load_bounding_box(self):
         # I think I'll add an option here
         # An if is better
-        filepath = "/home/ubuntu/parsed_boxes.csv"
-        assert filepath.is_file(), \
+        filepath = "/home/ubuntu/parsed_boxes_256.csv"
+        assert os.path.isfile(filepath), \
             f"Did not find bounding boxes at: {filepath}"
+
+        image_paths = [str(i).split("/")[-1] for i in self.image_paths]
+
         file_boxes = pd.read_csv(filepath, header=None, names=["filename", "bounding_boxes"])
-        bbox = np.stack(file_boxes["bounding_boxes"].values)
+        file_boxes = file_boxes[file_boxes["filename"].isin(image_paths)]
+        file_boxes["parsed_boxes"] = file_boxes.apply(parse_arrays, args=("bounding_boxes", ), axis=1)
+        bbox = np.stack(file_boxes["parsed_boxes"].values)
         self.bounding_boxes = bbox[:len(self)]
         assert len(self.bounding_boxes) == len(self)
 
 
     def load_landmarks(self):
-        filepath = "/home/ubuntu/parsed_landmarks.csv"
-        assert filepath.is_file(), \
+        filepath = "/home/ubuntu/parsed_landmarks_256.csv"
+        assert os.path.isfile(filepath), \
             f"Did not find landmarks at: {filepath}"
+       
+       
+        image_paths = [str(i).split("/")[-1] for i in self.image_paths]
         landmarks_file = pd.read_csv(filepath, header=None, names=["filename", "landmarks"])
-        landmarks = np.stack(landmarks_file["landmarks"].values)
-        landmarks = np.reshape(-1, 68, 2)
+        landmarks_file = landmarks_file[landmarks_file["filename"].isin(image_paths)]
+        print("landmarks", landmarks_file.head())
+        landmarks_file['parsed_landmarks'] = landmarks_file.apply(parse_arrays, args=("landmarks", ), axis=1)
+        landmarks = np.stack(landmarks_file["parsed_landmarks"].values)
+        landmarks = np.reshape(landmarks, (-1, 68, 2))
         landmarks = landmarks.astype(np.float32)
         self.landmarks = landmarks[:len(self)]
         assert len(self.landmarks) == len(self),\
