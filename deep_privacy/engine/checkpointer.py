@@ -22,6 +22,8 @@ def load_checkpoint(ckpt_dir_or_file: pathlib.Path) -> dict:
     if ckpt_dir_or_file.is_dir():
         with open(ckpt_dir_or_file.joinpath('latest_checkpoint')) as f:
             ckpt_path = f.readline().strip()
+            print(ckpt_path)
+
             ckpt_path = ckpt_dir_or_file.joinpath(ckpt_path)
     else:
         ckpt_path = ckpt_dir_or_file

@@ -179,6 +179,8 @@ class Config(object):
         parts = [
             pathlib.Path(p).stem for p in parts
             if "configs" not in p]
+        print(parts)
+
         return pathlib.Path(self._output_dir, *parts)
 
     @property

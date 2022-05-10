@@ -80,7 +80,8 @@ class ImageAnnotation:
         self.resize_background = resize_background
         self.generator_imsize = generator_imsize
         self.bbox_XYXY = bbox_XYXY
-        self.keypoints = keypoints[:, :7, :]
+        print(bbox_XYXY.shape)
+        self.keypoints = keypoints[:, :68, :]
         self.im = im
         self.imshape = im.shape
         self.mask = None
@@ -118,6 +119,7 @@ class ImageAnnotation:
             expansion_factor=0.35
         )
         width = expanded_bbox[2] - expanded_bbox[0]
+
         height = expanded_bbox[3] - expanded_bbox[1]
         assert width == height
         return expanded_bbox
@@ -331,27 +333,36 @@ class PyLandmarkDetector(BaseDetector):
         if im_bboxes is None or len(im_bboxes) == 0:
             im_bboxes = []
             for im in images:
-                boxes, _ = self.detector.detect_face(im)
+                boxes, _ = self.face_detector.detect_face(im)
                 im_bboxes.append(boxes.astype(int))
         return im_bboxes
 
 
     def detect_keypoints(self, images, bboxes):
         keypoints = []
+        boxes = []
         for idx, im in enumerate(images):
+            image_rects = []
             image_bboxes = bboxes[idx]
-            rect = [int(image_bboxes[idx][0]), int(image_bboxes[idx][1]), 
+            rect = [int(image_bboxes[idx][0]), int(image_bboxes[idx][1]),
                     int(image_bboxes[idx][2]-image_bboxes[idx][0]), int(image_bboxes[idx][3]-image_bboxes[idx][1])]
+
             pts = LandmarkDetector.detect(im, rect, [], 1)
-            keypoints.append(pts)       
-           
-        return keypoints
+            pts = np.reshape(pts, (-1, 68, 2))
+            keypoints.append(pts)
+            image_rects.append(rect)
+            boxes.append(image_rects)
+
+        keypoints = np.array(keypoints)
+        boxes = np.array(boxes)
+        return boxes, keypoints
 
 
     def get_detections(self, images, im_bboxes=None):
         im_bboxes = self.detect_faces(images, im_bboxes)
-        keypoints = self.detect_keypoints(images, im_bboxes)
-        return self.post_process_detections(images, im_bboxes, keypoints)
+        boxes, keypoints = self.detect_keypoints(images, im_bboxes)
+
+        return self.post_process_detections(images, boxes, keypoints)
 
 
 
