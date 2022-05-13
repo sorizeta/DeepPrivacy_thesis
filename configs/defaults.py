@@ -8,7 +8,7 @@ model_url = None
 models = dict(
     max_imsize=128,
     min_imsize=8,
-    pose_size=14,
+    pose_size=136,
     image_channels=3,
     conv_size={
         4: model_size,
