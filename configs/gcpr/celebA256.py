@@ -1,7 +1,7 @@
 
 _base_config_ = "../celebA-HQ.py"
-model_url = "../../outputs/gcpr/celebA256/checkpoints/step_200000.ckpt"
-model_size=256
+
+model_size = 256
 models = dict(
     max_imsize=256,
     conv_size={
@@ -15,7 +15,7 @@ models = dict(
         512: model_size//16
     },
 
-    pose_size=0,
+    pose_size=136,
     generator=dict(
         type="MSGGenerator",
         conv2d_config=dict(

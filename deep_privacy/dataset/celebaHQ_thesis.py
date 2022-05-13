@@ -55,11 +55,9 @@ class CelebAHQThesis(CustomDataset):
         assert os.path.isfile(filepath), \
             f"Did not find landmarks at: {filepath}"
        
-       
         image_paths = [str(i).split("/")[-1] for i in self.image_paths]
         landmarks_file = pd.read_csv(filepath, header=None, names=["filename", "landmarks"])
         landmarks_file = landmarks_file[landmarks_file["filename"].isin(image_paths)]
-        print("landmarks", landmarks_file.head())
         landmarks_file['parsed_landmarks'] = landmarks_file.apply(parse_arrays, args=("landmarks", ), axis=1)
         landmarks = np.stack(landmarks_file["parsed_landmarks"].values)
         landmarks = np.reshape(landmarks, (-1, 68, 2))
