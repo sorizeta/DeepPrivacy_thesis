@@ -3,11 +3,11 @@ import os
 _output_dir = "outputs"
 _cache_dir = ".deep_privacy_cache"
 
-model_size = 128
+model_size = 256
 model_url = None
 models = dict(
-    max_imsize=128,
-    min_imsize=8,
+    max_imsize=256,
+    min_imsize=256,
     pose_size=136,
     image_channels=3,
     conv_size={
@@ -92,14 +92,14 @@ trainer = dict(
         enabled=True
     ),
     batch_size_schedule={
-        4: 256,
-        4: 256,
-        8: 256,
-        16: 256,
-        32: 128,
-        64: 96,
-        128: 32,
-        256: 32
+        4: 64,
+        4: 64,
+        8: 64,
+        16: 64,
+        32: 32,
+        64: 24,
+        128: 8,
+        256: 8
     },
     optimizer=dict(
         learning_rate=0.001,

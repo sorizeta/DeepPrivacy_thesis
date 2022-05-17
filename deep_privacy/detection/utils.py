@@ -2,11 +2,17 @@ import numpy as np
 
 
 def is_keypoint_within_bbox(x0, y0, x1, y1, keypoint):
-    keypoint = keypoint[:3, :]  # only nose + eyes are relevant
+    print(x0)
+    print(x1)
+    keypoint = keypoint[36:45, :]  # only nose + eyes are relevant
+    print(keypoint)
     kp_X = keypoint[:, 0]
+    print(kp_X)
     kp_Y = keypoint[:, 1]
+    print(kp_Y)
     within_X = np.all(kp_X >= x0) and np.all(kp_X <= x1)
     within_Y = np.all(kp_Y >= y0) and np.all(kp_Y <= y1)
+    print(within_X)
     return within_X and within_Y
 
 
@@ -21,8 +27,8 @@ def match_bbox_keypoint(bounding_boxes, keypoints):
         f"Shape was : {bounding_boxes.shape}"
     assert keypoints.shape[-1] == 2,\
         f"Expected (x,y) in last axis, got: {keypoints.shape}"
-    assert keypoints.shape[1] in (5, 7),\
-        f"Expeted 5 or 7 keypoints. Keypoint shape was: {keypoints.shape}"
+    #assert keypoints.shape[1] in (5, 7),\
+    #    f"Expeted 5 or 7 keypoints. Keypoint shape was: {keypoints.shape}"
 
     matches = []
     for bbox_idx, bbox in enumerate(bounding_boxes):
@@ -35,4 +41,5 @@ def match_bbox_keypoint(bounding_boxes, keypoints):
                 break
     keypoint_idx = [x[1] for x in matches]
     bbox_idx = [x[0] for x in matches]
+    print(bbox_idx)
     return bounding_boxes[bbox_idx], keypoints[keypoint_idx]

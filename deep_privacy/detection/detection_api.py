@@ -80,7 +80,7 @@ class ImageAnnotation:
         self.resize_background = resize_background
         self.generator_imsize = generator_imsize
         self.bbox_XYXY = bbox_XYXY
-        print(bbox_XYXY.shape)
+        print(bbox_XYXY)
         self.keypoints = keypoints[:, :68, :]
         self.im = im
         self.imshape = im.shape
@@ -200,6 +200,8 @@ class ImageAnnotation:
         bbox[[1, 3]] -= exp_bbox[1]
 
         x0, y0, x1, y1 = self.get_expanded_bbox(face_idx)
+        print(x0)
+        print(y0)
 
         # expanded bbox might go outside of image.
         im[max(0, y0):min(y1, im.shape[0]),
@@ -326,7 +328,7 @@ class PyLandmarkDetector(BaseDetector):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.face_detector = MtcnnDetector()
-        LandmarkDetector.create("./model/")
+        LandmarkDetector.create("/home/ubuntu/networks/DeepPrivacy/deep_privacy/detection/model/")
 
 
     def detect_faces(self, images, im_bboxes):
@@ -334,7 +336,9 @@ class PyLandmarkDetector(BaseDetector):
             im_bboxes = []
             for im in images:
                 boxes, _ = self.face_detector.detect_face(im)
+                boxes = boxes[:, :4]
                 im_bboxes.append(boxes.astype(int))
+        print(im_bboxes)
         return im_bboxes
 
 
@@ -342,7 +346,6 @@ class PyLandmarkDetector(BaseDetector):
         keypoints = []
         boxes = []
         for idx, im in enumerate(images):
-            image_rects = []
             image_bboxes = bboxes[idx]
             rect = [int(image_bboxes[idx][0]), int(image_bboxes[idx][1]),
                     int(image_bboxes[idx][2]-image_bboxes[idx][0]), int(image_bboxes[idx][3]-image_bboxes[idx][1])]
@@ -350,19 +353,16 @@ class PyLandmarkDetector(BaseDetector):
             pts = LandmarkDetector.detect(im, rect, [], 1)
             pts = np.reshape(pts, (-1, 68, 2))
             keypoints.append(pts)
-            image_rects.append(rect)
-            boxes.append(image_rects)
 
         keypoints = np.array(keypoints)
-        boxes = np.array(boxes)
-        return boxes, keypoints
+        return keypoints
 
 
     def get_detections(self, images, im_bboxes=None):
         im_bboxes = self.detect_faces(images, im_bboxes)
-        boxes, keypoints = self.detect_keypoints(images, im_bboxes)
+        keypoints = self.detect_keypoints(images, im_bboxes)
 
-        return self.post_process_detections(images, boxes, keypoints)
+        return self.post_process_detections(images, im_bboxes, keypoints)
 
 
 

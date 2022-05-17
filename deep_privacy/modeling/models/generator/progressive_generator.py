@@ -6,7 +6,7 @@ from .base import RunningAverageGenerator
 from .gblocks import LatentVariableConcat, UnetSkipConnection
 from ..base import ProgressiveBase, FromRGB
 from ..utils import generate_pose_channel_images
-import pdb
+
 
 class DecoderUpsample(layers.NearestUpsample):
 
@@ -215,7 +215,7 @@ class Generator(RunningAverageGenerator, ProgressiveBase):
             landmarks_oh = generate_pose_channel_images(
                 4, self.current_imsize, condition.device, landmarks,
                 condition.dtype)
-        pdb.set_trace()
+        
         batch = dict(
             landmarks=landmarks,
             landmarks_oh=landmarks_oh,

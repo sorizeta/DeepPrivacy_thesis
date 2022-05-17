@@ -10,7 +10,7 @@ data_train = dict(
         percentage=1.0,
         is_train=True
     ),
-    transforms=[],
+    transforms=[dict(type="FlattenLandmark")],
 )
 data_val = dict(
     dataset=dict(
@@ -19,5 +19,5 @@ data_val = dict(
         percentage=.2,
         is_train=False
     ),
-    transforms=[],
+    transforms=[dict(type="FlattenLandmark")],
 )
