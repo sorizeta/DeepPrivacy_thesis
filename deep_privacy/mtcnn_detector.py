@@ -14,22 +14,27 @@ def detect_features(image_path):
         boxes = boxes.astype(int)
         box = boxes[0]
     else:
-        h, w, _ = im.shape
-        box = [0, 0, h, w]
+        box = []
     
-    # [x0, y0, x1, y1]
-    rect = [int(box[0]), int(box[1]), 
-            int(box[2]-box[0]), int(box[3]-box[1])]
+    if len(box) > 0:
+        # [x0, y0, x1, y1]
+        rect = [int(box[0]), int(box[1]), 
+                int(box[2]-box[0]), int(box[3]-box[1])]
 
     
-    pts = LandmarkDetector.detect(im, rect, [], 1)
-    rect = np.asarray(rect, dtype=int)
-    pts = np.asarray(pts, dtype=int)
+        pts = LandmarkDetector.detect(im, rect, [], 1)
+        box = np.asarray(box, dtype=int)
+        pts = np.asarray(pts, dtype=int)
+
+    else:
+
+        pts = []
+
     with open(dest_path + '/features_test.csv', 'a') as csv_file:
          writer = csv.writer(csv_file)
-         writer.writerow([image_path, rect, pts])
+         writer.writerow([image_path, box, pts])
     
-    return rect, pts
+    return box, pts
 
 detector_dir = './face-datasets/'
 sys.path.insert(0, detector_dir+'facealign')

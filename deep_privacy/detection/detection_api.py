@@ -336,9 +336,10 @@ class PyLandmarkDetector(BaseDetector):
             im_bboxes = []
             for im in images:
                 boxes, _ = self.face_detector.detect_face(im)
-                boxes = boxes[:, :4]
+                boxes = np.array(boxes)
+                if boxes.shape[0] > 0:
+                     boxes = boxes[:,:4]
                 im_bboxes.append(boxes.astype(int))
-        print(im_bboxes)
         return im_bboxes
 
 
@@ -347,11 +348,14 @@ class PyLandmarkDetector(BaseDetector):
         boxes = []
         for idx, im in enumerate(images):
             image_bboxes = bboxes[idx]
-            rect = [int(image_bboxes[idx][0]), int(image_bboxes[idx][1]),
-                    int(image_bboxes[idx][2]-image_bboxes[idx][0]), int(image_bboxes[idx][3]-image_bboxes[idx][1])]
+            if image_bboxes.shape[0] > 0:
+                rect = [int(image_bboxes[0][0]), int(image_bboxes[0][1]),
+                        int(image_bboxes[0][2]-image_bboxes[0][0]), int(image_bboxes[0][3]-image_bboxes[0][1])]
 
-            pts = LandmarkDetector.detect(im, rect, [], 1)
-            pts = np.reshape(pts, (-1, 68, 2))
+                pts = LandmarkDetector.detect(im, rect, [], 1)
+                pts = np.reshape(pts, (-1, 68, 2))
+            else:
+                pts = []
             keypoints.append(pts)
 
         keypoints = np.array(keypoints)
