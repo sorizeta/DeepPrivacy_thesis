@@ -22,8 +22,11 @@ class CelebAHQThesis(CustomDataset):
     def _load_impaths(self):
         image_dir = self.dirpath
         image_paths = list(image_dir.glob("*.png"))
-        image_paths.sort(key=lambda x: int(x.stem))
-        return image_paths
+        excluded_paths = pd.read_csv("/home/ubuntu/cancel_files.csv", sep=",", names=['filename'])
+        excluded_paths = excluded_paths["filename"].to_list()
+        image_paths_ex = [x for x in image_paths if x not in excluded_paths]
+        image_paths_ex.sort(key=lambda x: int(x.stem))
+        return image_paths_ex
 
     def get_mask(self, idx):
         mask = np.ones((self.imsize, self.imsize), dtype=np.bool)
