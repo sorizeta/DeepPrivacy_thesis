@@ -6,7 +6,9 @@ dataset_type = "CelebAHQThesis"
 data_train = dict(
     dataset=dict(
         type=dataset_type,
-        dirpath="/datasets/celeba/celeba-hq/256x256/",
+        dirpath="/home/ubuntu/labels/train_files.csv",
+        landmarkspath = "/home/ubuntu/labels/landmarks_train.npy",
+        boxespath = "/home/ubuntu/labels/boxes_train.npy",
         percentage=1.0,
         is_train=True
     ),
@@ -15,7 +17,9 @@ data_train = dict(
 data_val = dict(
     dataset=dict(
         type=dataset_type,
-        dirpath=os.path.join("/home/ubuntu/celeba-test-256/"),
+        dirpath="/home/ubuntu/labels/test_files.csv",
+        landmarkspath = "/home/ubuntu/labels/landmarks_test.npy",
+        boxespath = "/home/ubuntu/labels/boxes_test.npy",
         percentage=.2,
         is_train=False
     ),

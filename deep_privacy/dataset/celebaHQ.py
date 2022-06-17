@@ -9,6 +9,8 @@ class CelebAHQDataset(CustomDataset):
     def __init__(self, *args, is_train, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_train = is_train
+        self.landmarkspath = landmarkspath
+        self.boxespath = boxespath
 
     def _load_impaths(self):
         #image_dir = self.dirpath.joinpath(str(self.imsize))

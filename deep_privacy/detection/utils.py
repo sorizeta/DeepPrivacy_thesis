@@ -4,7 +4,7 @@ import numpy as np
 def is_keypoint_within_bbox(x0, y0, x1, y1, keypoint):
     print(x0)
     print(x1)
-    keypoint = keypoint[36:45, :]  # only nose + eyes are relevant
+    keypoint = keypoint[:, :]  # only nose + eyes are relevant
     print(keypoint)
     kp_X = keypoint[:, 0]
     print(kp_X)

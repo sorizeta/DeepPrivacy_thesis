@@ -30,7 +30,7 @@ def detect_features(image_path):
 
         pts = []
 
-    with open(dest_path + '/features_test.csv', 'a') as csv_file:
+    with open(dest_path + '/features_new_box.csv', 'a') as csv_file:
          writer = csv.writer(csv_file)
          writer.writerow([image_path, box, pts])
     
@@ -59,5 +59,4 @@ if os.path.exists(source_path):
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             file_list = glob.glob(source_path + '/*.png')
-            print(file_list)
             future_proc = {executor.submit(detect_features, f): f for f in file_list}

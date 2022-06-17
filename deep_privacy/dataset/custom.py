@@ -7,16 +7,21 @@ class CustomDataset:
 
     def __init__(self,
                  dirpath,
+                 landmarkspath,
+                 boxespath,
                  imsize: int,
                  transform,
                  percentage: float):
         dirpath = pathlib.Path(dirpath)
+        print(landmarkspath)
         self.dirpath = dirpath
+        self.boxespath = boxespath
+        self.landmarkspath = landmarkspath
         self.transform = transform
         self._percentage = percentage
         self.imsize = imsize
-        assert self.dirpath.is_dir(),\
-            f"Did not find dataset at: {dirpath}"
+        #assert self.dirpath.is_dir(),\
+        #    f"Did not find dataset at: {dirpath}"
         self.image_paths = self._load_impaths()
         self.filter_images()
 

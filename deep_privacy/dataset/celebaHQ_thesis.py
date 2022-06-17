@@ -4,6 +4,7 @@ from .build import DATASET_REGISTRY
 import numpy as np
 import pandas as pd
 import os
+from pathlib import Path
 
 def parse_arrays(row, col_name):
     lnd = row[col_name][1:-1]
@@ -20,12 +21,17 @@ class CelebAHQThesis(CustomDataset):
         self.load_bounding_box()
 
     def _load_impaths(self):
-        image_dir = self.dirpath
+        image_df = pd.read_csv(self.dirpath, header=None, names=['filename'], sep=';')
+        image_list = image_df['filename'].to_list()
+        image_paths = [Path(x) for x in image_list]
+        '''
         image_paths_tmp = list(image_dir.glob("*.png"))
         excluded_paths = pd.read_csv("/home/ubuntu/cancel_files.csv", sep=",", names=['filename'])
         excluded_paths = excluded_paths["filename"].to_list()
         image_paths = [x for x in image_paths_tmp if x not in excluded_paths]
         image_paths.sort(key=lambda x: int(x.stem))
+        print('Print:', len(image_paths))
+        '''
         return image_paths
 
     def get_mask(self, idx):
@@ -39,37 +45,25 @@ class CelebAHQThesis(CustomDataset):
     def load_bounding_box(self):
         # I think I'll add an option here
         # An if is better
-        filepath = "/home/ubuntu/parsed_boxes_256.csv"
-        assert os.path.isfile(filepath), \
-            f"Did not find bounding boxes at: {filepath}"
-
-        image_paths = [str(i).split("/")[-1] for i in self.image_paths]
-
-        file_boxes = pd.read_csv(filepath, header=None, names=["filename", "bounding_boxes"])
-        file_boxes = file_boxes[file_boxes["filename"].isin(image_paths)]
-        file_boxes["parsed_boxes"] = file_boxes.apply(parse_arrays, args=("bounding_boxes", ), axis=1)
-        bbox = np.stack(file_boxes["parsed_boxes"].values)
-        self.bounding_boxes = bbox[:len(self)]
-        assert len(self.bounding_boxes) == len(self)
+        filepath = self.dirpath.joinpath(self.boxespath)
+        assert filepath.is_file(), \
+            f"Did not find landmarks at: {filepath}"
+        boxes = np.load(filepath, allow_pickle=True)
+        boxes = np.vstack(boxes)
+        boxes = boxes.astype(np.int)
+        self.bounding_boxes = boxes
 
 
     def load_landmarks(self):
-        filepath = "/home/ubuntu/parsed_landmarks_256.csv"
-        assert os.path.isfile(filepath), \
+        filepath = self.dirpath.joinpath(self.landmarkspath)
+        assert filepath.is_file(), \
             f"Did not find landmarks at: {filepath}"
-       
-        image_paths = [str(i).split("/")[-1] for i in self.image_paths]
-        landmarks_file = pd.read_csv(filepath, header=None, names=["filename", "landmarks"])
-        landmarks_file = landmarks_file[landmarks_file["filename"].isin(image_paths)]
-        landmarks_file['parsed_landmarks'] = landmarks_file.apply(parse_arrays, args=("landmarks", ), axis=1)
-        landmarks = np.stack(landmarks_file["parsed_landmarks"].values)
+        landmarks = np.load(filepath, allow_pickle=True)
+        landmarks = np.vstack(landmarks)
         landmarks = np.reshape(landmarks, (-1, 68, 2))
         landmarks = landmarks[:, 28:, :]
         landmarks = landmarks.astype(np.float32)
-        self.landmarks = landmarks[:len(self)]
-        assert len(self.landmarks) == len(self),\
-            f"Number of images: {len(self)}, landmarks: {len(landmarks)}"
-
+        self.landmarks = landmarks
     # A cosa serve questa cosa?
     # Potrebbe dovermi servire
     def get_item(self, index):

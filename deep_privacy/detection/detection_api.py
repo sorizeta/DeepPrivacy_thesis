@@ -354,8 +354,9 @@ class PyLandmarkDetector(BaseDetector):
 
                 pts = LandmarkDetector.detect(im, rect, [], 1)
                 pts = np.reshape(pts, (-1, 68, 2))
+                pts = pts[:, 28:, :]
             else:
-                pts = []
+                pts = np.empty([1, 40, 2])
             keypoints.append(pts)
 
         keypoints = np.array(keypoints)
