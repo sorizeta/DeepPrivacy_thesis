@@ -3,7 +3,7 @@
 This repository contains a part of the work for my Master's degree thesis in Computer Science at Università degli Studi di Milano-Bicocca
 This work is based on the DeepPrivacy Network for face anonymization.
 
-The landmark detector for this project can be found at: ![](https://github.com/cnzeki/PyLandmark)
+The landmark detector for this project can be found at: [https://github.com/cnzeki/PyLandmark](https://github.com/cnzeki/PyLandmark)
 
 Below, there is the original readme of the project.
 
