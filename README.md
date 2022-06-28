@@ -1,4 +1,14 @@
 # DeepPrivacy
+
+This repository contains a part of the work for my Master's degree thesis in Computer Science at Università degli Studi di Milano-Bicocca
+This work is based on the DeepPrivacy Network for face anonymization.
+
+The landmark detector for this project can be found at: ![](https://github.com/cnzeki/PyLandmark)
+
+Below, there is the original readme of the project.
+
+
+## DeepPrivacy
 [[**Interactive Demo**]](https://huggingface.co/spaces/haakohu/DeepPrivacy)
 
 ![](images/example.gif)
@@ -18,13 +28,13 @@ DeepPrivacy detects faces with state-of-the-art detection methods.
 [Mask R-CNN](https://arxiv.org/abs/1703.06870) is used to generate a sparse pose information of the face, and [DSFD](https://arxiv.org/abs/1810.10220) is used to detect faces in the image.
 ![](images/overall_architecture.png)
 
-## Information
+### Information
 Check out the original version here:
 
 Check out [GCPR readme](GCPR.md) to reproduce our results from our publication "Image Inpainting with Learnable Feature Imputation".
 
 
-## New features in version 2
+### New features in version 2
 - FP16 inference
 - Support for face detection and landmark detection with a single SSD model (retinanet).
 - Face alignment before anonymization - improves performance for rotate faces.
@@ -34,7 +44,7 @@ Check out [GCPR readme](GCPR.md) to reproduce our results from our publication "
 - Support for video inference
 
 
-## Installation
+### Installation
 Install the following: 
 - Pytorch  >= 1.7.0 (Some checkpoints requires a bug fix from pytorch 1.7 - the current master branch)
 - Torchvision >= 0.6.0
@@ -51,7 +61,7 @@ or with pip:
 pip install git+https://github.com/hukkelas/DeepPrivacy/
 ```
 
-#### Docker
+##### Docker
 In our experiments, we use docker as the virtual environment. 
 
 Our docker image can be built by running:
@@ -61,7 +71,7 @@ cd docker/
 docker build -t deep_privacy . 
 ```
 
-## Usage
+### Usage
 
 We have a file command line interface to anonymize images.
 ```
@@ -75,7 +85,7 @@ The cli is also available outside the folder `python -m deep_privacy.cli`.
 Also check out `python -m deep_privacy.cli -h ` for more arguments.
 
 
-### Webcam
+#### Webcam
 Test out the model with
 ```
 python webcam.py
@@ -84,7 +94,7 @@ Also check out `python webcam.py -h ` for more arguments.
 
 
 
-## Anonymization Model Zoo
+### Anonymization Model Zoo
 | Model | Dataset | Detector | Num parameters| 
 |--|--|--|--|
 |deep_privacy_v1|FDF 128x128|DSFD face detector + Mask RCNN for keypoints|46.92M|
@@ -93,17 +103,17 @@ Also check out `python webcam.py -h ` for more arguments.
 |fdf128_retinanet256|FDF 128x128|SSD-based RetinaNet with ResNet50 backbone|12.704M|
 |fdf128_retinanet128|FDF 128x128|SSD-based RetinaNet with ResNet50 backbone|3.17M|
 
-### Retinanet Detector
+#### Retinanet Detector
 Combined keypoint and face detection in one single-shot model (SSD-based).
 Uses five landmarks: eyes, nose, and mouth (left and right).
 Model is based on [RetinaFace](https://arxiv.org/abs/1905.00641).
 The model is significantly faster, but has poorer detection than DSFD.
 
-### DSFD + RCNN
+#### DSFD + RCNN
 Uses [Mask R-CNN](https://arxiv.org/abs/1703.06870) is for keypoint detection, and [DSFD](https://arxiv.org/abs/1810.10220) for face detection.
 ![](images/overall_architecture.png)
 
-## Citation
+### Citation
 If you find this code useful, please cite the following:
 ```
 @InProceedings{10.1007/978-3-030-33720-9_44,
@@ -120,11 +130,11 @@ isbn="978-3-030-33720-9"
 
 
 ```
-## FDF Dataset
+### FDF Dataset
 The FDF dataset will be released at [github:hukkelas/FDF](https://github.com/hukkelas/FDF)
 
 
-## License
+### License
 All code is under MIT license, except the following. 
 
 Code under [deep_privacy/detection](deep_privacy/detection):
