@@ -80,8 +80,7 @@ class ImageAnnotation:
         self.resize_background = resize_background
         self.generator_imsize = generator_imsize
         self.bbox_XYXY = bbox_XYXY
-        print(bbox_XYXY)
-        self.keypoints = keypoints[:, :68, :]
+        self.keypoints = keypoints[:, :, :]
         self.im = im
         self.imshape = im.shape
         self.mask = None
@@ -116,7 +115,7 @@ class ImageAnnotation:
             self.im.shape,
             simple_expand=self.simple_expand,
             default_to_simple=True,
-            expansion_factor=0.35
+            expansion_factor=0.2
         )
         width = expanded_bbox[2] - expanded_bbox[0]
 
@@ -200,8 +199,6 @@ class ImageAnnotation:
         bbox[[1, 3]] -= exp_bbox[1]
 
         x0, y0, x1, y1 = self.get_expanded_bbox(face_idx)
-        print(x0)
-        print(y0)
 
         # expanded bbox might go outside of image.
         im[max(0, y0):min(y1, im.shape[0]),
@@ -353,10 +350,17 @@ class PyLandmarkDetector(BaseDetector):
                         int(image_bboxes[0][2]-image_bboxes[0][0]), int(image_bboxes[0][3]-image_bboxes[0][1])]
 
                 pts = LandmarkDetector.detect(im, rect, [], 1)
-                pts = np.reshape(pts, (-1, 68, 2))
-                pts = pts[:, 28:, :]
+                pts = np.array(pts)
+                mask = np.zeros(68, dtype=int)
+                mask[0] = 1
+                mask[16] = 1
+                mask[27:] = 1
+                mask = np.repeat(mask, 2)
+                pts = pts[mask.astype(bool)]
+                pts = np.concatenate((pts, np.array([0, 255, 255, 255])))
+                pts = np.reshape(pts, (-1, 45, 2))
             else:
-                pts = np.empty([1, 40, 2])
+                pts = np.empty([1, 45, 2])
             keypoints.append(pts)
 
         keypoints = np.array(keypoints)

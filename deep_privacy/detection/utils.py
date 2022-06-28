@@ -2,19 +2,13 @@ import numpy as np
 
 
 def is_keypoint_within_bbox(x0, y0, x1, y1, keypoint):
-    print(x0)
-    print(x1)
-    keypoint = keypoint[:, :]  # only nose + eyes are relevant
-    print(keypoint)
-    kp_X = keypoint[:, 0]
-    print(kp_X)
-    kp_Y = keypoint[:, 1]
-    print(kp_Y)
+    keypoint = keypoint[:-2]  # excluding shoulders
+    kp_X = keypoint[:, 0] # right ear
+    kp_Y = keypoint[:, 1] # left ear
     within_X = np.all(kp_X >= x0) and np.all(kp_X <= x1)
     within_Y = np.all(kp_Y >= y0) and np.all(kp_Y <= y1)
-    print(within_X)
+    
     return within_X and within_Y
-
 
 def match_bbox_keypoint(bounding_boxes, keypoints):
     """
@@ -22,7 +16,7 @@ def match_bbox_keypoint(bounding_boxes, keypoints):
         keypoints: [N persons, K keypoints, (x, y)]
     """
     if len(bounding_boxes) == 0 or len(keypoints) == 0:
-        return np.empty((0, 5)), np.empty((0, 7, 2))
+        return np.empty((0, 5)), np.empty((0, 7, 2)) # correct with the right size
     assert bounding_boxes.shape[1] == 4,\
         f"Shape was : {bounding_boxes.shape}"
     assert keypoints.shape[-1] == 2,\
@@ -41,5 +35,4 @@ def match_bbox_keypoint(bounding_boxes, keypoints):
                 break
     keypoint_idx = [x[1] for x in matches]
     bbox_idx = [x[0] for x in matches]
-    print(bbox_idx)
     return bounding_boxes[bbox_idx], keypoints[keypoint_idx]

@@ -13,7 +13,6 @@ class CustomDataset:
                  transform,
                  percentage: float):
         dirpath = pathlib.Path(dirpath)
-        print(landmarkspath)
         self.dirpath = dirpath
         self.boxespath = boxespath
         self.landmarkspath = landmarkspath

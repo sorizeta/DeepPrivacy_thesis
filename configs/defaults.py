@@ -8,7 +8,7 @@ model_url = None
 models = dict(
     max_imsize=256,
     min_imsize=256,
-    pose_size=80,
+    pose_size=90,
     image_channels=3,
     conv_size={
         4: model_size,
@@ -66,7 +66,7 @@ trainer = dict(
         dict(type="RunningAverageHook"),
         dict(
             type="CheckpointHook",
-            ims_per_checkpoint=2e5
+            ims_per_checkpoint=1e5
         ),
         dict(type="SigTermHook"),
         dict(
@@ -76,7 +76,7 @@ trainer = dict(
         ),
         dict(
             type="MetricHook",
-            ims_per_log=2e5,
+            ims_per_log=1e5,
             lpips_batch_size=128,
             fid_batch_size=8,
             min_imsize_to_calculate=128

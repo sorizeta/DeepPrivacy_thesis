@@ -52,7 +52,6 @@ class DeepPrivacyAnonymizer(Anonymizer):
                          image_annotations: typing.List[ImageAnnotation]
                          ) -> typing.List[np.ndarray]:
         anonymized_images = []
-        print(image_annotations)
         for im_idx, image_annotation in enumerate(image_annotations):
             # pre-process
             imsize = self.inference_imsize

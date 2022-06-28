@@ -60,12 +60,10 @@ class CelebAHQThesis(CustomDataset):
             f"Did not find landmarks at: {filepath}"
         landmarks = np.load(filepath, allow_pickle=True)
         landmarks = np.vstack(landmarks)
-        landmarks = np.reshape(landmarks, (-1, 68, 2))
-        landmarks = landmarks[:, 28:, :]
+        landmarks = np.reshape(landmarks, (-1, 45, 2))
         landmarks = landmarks.astype(np.float32)
         self.landmarks = landmarks
-    # A cosa serve questa cosa?
-    # Potrebbe dovermi servire
+
     def get_item(self, index):
         batch = super().get_item(index)
         landmark = self.landmarks[index]

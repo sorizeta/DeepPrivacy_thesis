@@ -63,7 +63,7 @@ class CheckpointHook(HookBase):
     def save_validation_checkpoint(self):
         checkpoints = [12, 20, 30, 40, 50]
         for checkpoint_step in checkpoints:
-            checkpoint_step = checkpoint_step * 10**6
+            checkpoint_step = checkpoint_step * 5 * 10**5
             previous_global_step = self.global_step() - self.trainer.batch_size()
             if self.global_step() >= checkpoint_step and previous_global_step < checkpoint_step:
                 logger.info("Saving global checkpoint for validation")
