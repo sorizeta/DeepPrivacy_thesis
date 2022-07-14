@@ -1,7 +1,5 @@
 import numpy as np
 import torch
-from deep_privacy.inference.utils import transfer_lightning
-from utils import build_laplacian_pyramid
 import deep_privacy.torch_utils as torch_utils
 import cv2
 import pathlib
@@ -24,7 +22,7 @@ def batched_iterator(batch, batch_size):
         }
 
 
-class ThesisDeepPrivacyAnonymizer(Anonymizer):
+class DeepPrivacyAnonymizer(Anonymizer):
 
     def __init__(self, generator, batch_size, save_debug,
                  fp16_inference: bool,
@@ -57,9 +55,6 @@ class ThesisDeepPrivacyAnonymizer(Anonymizer):
         for im_idx, image_annotation in enumerate(image_annotations):
             # pre-process
             imsize = self.inference_imsize
-            face_lighting = torch.zeros(
-                (len(image_annotation), 3, imsize, imsize),
-                dtype=torch.float32)
             condition = torch.zeros(
                 (len(image_annotation), 3, imsize, imsize),
                 dtype=torch.float32)
@@ -68,7 +63,6 @@ class ThesisDeepPrivacyAnonymizer(Anonymizer):
                 (len(image_annotation), self.pose_size), dtype=torch.float32)
             for face_idx in range(len(image_annotation)):
                 face, mask_ = image_annotation.get_face(face_idx, imsize)
-                face_lighting[face_idx] = build_laplacian_pyramid(face, 6)
                 condition[face_idx] = torch_utils.image_to_torch(
                     face, cuda=False, normalize_img=True
                 )
@@ -108,8 +102,6 @@ class ThesisDeepPrivacyAnonymizer(Anonymizer):
                         batches["condition"][face_idx],
                         denormalize=True, to_uint8=True)
                     fake_face = anonymized_faces[face_idx]
-                    fake_face_lighting = build_laplacian_pyramid(fake_face, 6)
-                    fake_face = transfer_lighting(face_lighting[face_idx], fake_face_lighting, 6)
                     fake_face = (fake_face * 255).astype(np.uint8)
                     to_save = np.concatenate(
                         (orig_face, condition, fake_face), axis=1)

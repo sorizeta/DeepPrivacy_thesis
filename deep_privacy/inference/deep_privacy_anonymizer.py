@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from deep_privacy.inference.utils import build_laplacian_pyramid
 import deep_privacy.torch_utils as torch_utils
 import cv2
 import pathlib
@@ -55,6 +56,9 @@ class DeepPrivacyAnonymizer(Anonymizer):
         for im_idx, image_annotation in enumerate(image_annotations):
             # pre-process
             imsize = self.inference_imsize
+            face_lighting = torch.zeros(
+                (len(image_annotation), 3, 4, 4),
+                dtype=torch.float32)
             condition = torch.zeros(
                 (len(image_annotation), 3, imsize, imsize),
                 dtype=torch.float32)
@@ -63,8 +67,12 @@ class DeepPrivacyAnonymizer(Anonymizer):
                 (len(image_annotation), self.pose_size), dtype=torch.float32)
             for face_idx in range(len(image_annotation)):
                 face, mask_ = image_annotation.get_face(face_idx, imsize)
+                face_pyr = build_laplacian_pyramid(face, 6)[0]
                 condition[face_idx] = torch_utils.image_to_torch(
                     face, cuda=False, normalize_img=True
+                )
+                face_lighting[face_idx] = torch_utils.image_to_torch(
+                     face_pyr, cuda=False, normalize_img=True
                 )
                 mask[face_idx, 0] = torch.from_numpy(mask_).float()
                 kp = image_annotation.aligned_keypoint(face_idx)
@@ -102,6 +110,8 @@ class DeepPrivacyAnonymizer(Anonymizer):
                         batches["condition"][face_idx],
                         denormalize=True, to_uint8=True)
                     fake_face = anonymized_faces[face_idx]
+                    fake_face_lighting = build_laplacian_pyramid(fake_face, 6)
+                    fake_face = transfer_lighting(face_lighting[face_idx], fake_face_lighting, 6)
                     fake_face = (fake_face * 255).astype(np.uint8)
                     to_save = np.concatenate(
                         (orig_face, condition, fake_face), axis=1)

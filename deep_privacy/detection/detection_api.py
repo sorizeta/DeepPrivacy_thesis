@@ -14,8 +14,8 @@ detector_dir = '/home/ubuntu/networks/DeepPrivacy/deep_privacy/face-datasets/'
 sys.path.insert(0, detector_dir+'facealign')
 sys.path.insert(0, detector_dir+'util')
 
-from MtcnnPycaffe import MtcnnDetector
-import PyLandmark as LandmarkDetector
+#from MtcnnPycaffe import MtcnnDetector
+#import PyLandmark as LandmarkDetector
 
 
 def tight_crop(array):
@@ -320,60 +320,60 @@ class RCNNDetector(BaseDetector):
         return self.post_process_detections(images, im_bboxes, keypoints)
 
 
-@DETECTOR_REGISTRY.register_module
-class PyLandmarkDetector(BaseDetector):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.face_detector = MtcnnDetector()
-        LandmarkDetector.create("/home/ubuntu/networks/DeepPrivacy/deep_privacy/detection/model/")
+# @DETECTOR_REGISTRY.register_module
+# class PyLandmarkDetector(BaseDetector):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.face_detector = MtcnnDetector()
+#         LandmarkDetector.create("/home/ubuntu/networks/DeepPrivacy/deep_privacy/detection/model/")
 
 
-    def detect_faces(self, images, im_bboxes):
-        if im_bboxes is None or len(im_bboxes) == 0:
-            im_bboxes = []
-            for im in images:
-                boxes, _ = self.face_detector.detect_face(im)
-                boxes = np.array(boxes)
-                if boxes.shape[0] > 0:
-                     boxes = boxes[:,:4]
-                im_bboxes.append(boxes.astype(int))
-        return im_bboxes
+#     def detect_faces(self, images, im_bboxes):
+#         if im_bboxes is None or len(im_bboxes) == 0:
+#             im_bboxes = []
+#             for im in images:
+#                 boxes, _ = self.face_detector.detect_face(im)
+#                 boxes = np.array(boxes)
+#                 if boxes.shape[0] > 0:
+#                      boxes = boxes[:,:4]
+#                 im_bboxes.append(boxes.astype(int))
+#         return im_bboxes
 
 
-    def detect_keypoints(self, images, bboxes):
-        keypoints = []
-        boxes = []
-        for idx, im in enumerate(images):
-            image_bboxes = bboxes[idx]
-            if image_bboxes.shape[0] > 0:
-                rect = [int(image_bboxes[0][0]), int(image_bboxes[0][1]),
-                        int(image_bboxes[0][2]-image_bboxes[0][0]), int(image_bboxes[0][3]-image_bboxes[0][1])]
-                '''
-                pts = LandmarkDetector.detect(im, rect, [], 1)
-                pts = np.array(pts)
-                mask = np.zeros(68, dtype=int)
-                mask[0] = 1
-                mask[16] = 1
-                mask[27:] = 1
-                mask = np.repeat(mask, 2)
-                pts = pts[mask.astype(bool)]
-                pts = np.concatenate((pts, np.array([0, 255, 255, 255])))
-                pts = np.reshape(pts, (-1, 45, 2))
-                '''
-                pts = np.random(1, 45, 2) * 255
-            else:
-                pts = np.empty([1, 45, 2])
-            keypoints.append(pts)
+#     def detect_keypoints(self, images, bboxes):
+#         keypoints = []
+#         boxes = []
+#         for idx, im in enumerate(images):
+#             image_bboxes = bboxes[idx]
+#             if image_bboxes.shape[0] > 0:
+#                 rect = [int(image_bboxes[0][0]), int(image_bboxes[0][1]),
+#                         int(image_bboxes[0][2]-image_bboxes[0][0]), int(image_bboxes[0][3]-image_bboxes[0][1])]
+#                 '''
+#                 pts = LandmarkDetector.detect(im, rect, [], 1)
+#                 pts = np.array(pts)
+#                 mask = np.zeros(68, dtype=int)
+#                 mask[0] = 1
+#                 mask[16] = 1
+#                 mask[27:] = 1
+#                 mask = np.repeat(mask, 2)
+#                 pts = pts[mask.astype(bool)]
+#                 pts = np.concatenate((pts, np.array([0, 255, 255, 255])))
+#                 pts = np.reshape(pts, (-1, 45, 2))
+#                 '''
+#                 pts = np.random(1, 45, 2) * 255
+#             else:
+#                 pts = np.empty([1, 45, 2])
+#             keypoints.append(pts)
 
-        keypoints = np.array(keypoints)
-        return keypoints
+#         keypoints = np.array(keypoints)
+#         return keypoints
 
 
-    def get_detections(self, images, im_bboxes=None):
-        im_bboxes = self.detect_faces(images, im_bboxes)
-        keypoints = self.detect_keypoints(images, im_bboxes)
+#     def get_detections(self, images, im_bboxes=None):
+#         im_bboxes = self.detect_faces(images, im_bboxes)
+#         keypoints = self.detect_keypoints(images, im_bboxes)
 
-        return self.post_process_detections(images, im_bboxes, keypoints)
+#         return self.post_process_detections(images, im_bboxes, keypoints)
 
 
 

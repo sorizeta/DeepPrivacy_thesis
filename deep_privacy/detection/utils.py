@@ -2,12 +2,12 @@ import numpy as np
 
 
 def is_keypoint_within_bbox(x0, y0, x1, y1, keypoint):
-    keypoint = keypoint[:-2]  # excluding shoulders
-    kp_X = keypoint[:, 0] # right ear
-    kp_Y = keypoint[:, 1] # left ear
+    #keypoint = keypoint[:-2]  # excluding shoulders
+    keypoint = keypoint[:3, :]  # only nose + eyes are relevant
+    kp_X = keypoint[:, 0]
+    kp_Y = keypoint[:, 1]
     within_X = np.all(kp_X >= x0) and np.all(kp_X <= x1)
     within_Y = np.all(kp_Y >= y0) and np.all(kp_Y <= y1)
-    
     return within_X and within_Y
 
 def match_bbox_keypoint(bounding_boxes, keypoints):

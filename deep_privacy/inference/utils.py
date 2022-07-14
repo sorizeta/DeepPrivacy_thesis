@@ -17,8 +17,8 @@ def build_laplacian_pyramid(img, levels):
     return laplacian_pyramid
 
 
-def transfer_lighting(start_pyramid, end_pyramid, n_layers):
-    end_pyramid[0] = start_pyramid[0]
+def transfer_lighting(start_layer, end_pyramid, n_layers):
+    end_pyramid[0] = start_layer
     ls_ = end_pyramid[0]
     for i in range(1, n_layers):
         ls_ = cv2.pyrUp(ls_)
