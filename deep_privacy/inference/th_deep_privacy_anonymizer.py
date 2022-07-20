@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from deep_privacy.inference.utils import build_laplacian_pyramid, transfer_lighting
 import deep_privacy.torch_utils as torch_utils
 import cv2
 import pathlib
@@ -55,6 +56,9 @@ class DeepPrivacyAnonymizer(Anonymizer):
         for im_idx, image_annotation in enumerate(image_annotations):
             # pre-process
             imsize = self.inference_imsize
+            face_lighting = torch.zeros(
+                (len(image_annotation), 3, 4, 4),
+                dtype=torch.float32)
             condition = torch.zeros(
                 (len(image_annotation), 3, imsize, imsize),
                 dtype=torch.float32)
@@ -63,8 +67,12 @@ class DeepPrivacyAnonymizer(Anonymizer):
                 (len(image_annotation), self.pose_size), dtype=torch.float32)
             for face_idx in range(len(image_annotation)):
                 face, mask_ = image_annotation.get_face(face_idx, imsize)
+                face_pyr = build_laplacian_pyramid(face, 6)[0]
                 condition[face_idx] = torch_utils.image_to_torch(
                     face, cuda=False, normalize_img=True
+                )
+                face_lighting[face_idx] = torch_utils.image_to_torch(
+                     face_pyr, cuda=False, normalize_img=True
                 )
                 mask[face_idx, 0] = torch.from_numpy(mask_).float()
                 kp = image_annotation.aligned_keypoint(face_idx)
@@ -92,6 +100,8 @@ class DeepPrivacyAnonymizer(Anonymizer):
                 start = idx * self.batch_size
                 anonymized_faces[start:start + self.batch_size] = face
             anonymized_image = image_annotation.stitch_faces(anonymized_faces)
+            fake_face_lighting = build_laplacian_pyramid(anonymized_image, 6)
+            anonymized_image = transfer_lighting(face_lighting[face_idx].cpu().detach().numpy(), fake_face_lighting, 6)
             anonymized_images.append(anonymized_image)
             if self.save_debug:
                 num_faces = len(batches["condition"])

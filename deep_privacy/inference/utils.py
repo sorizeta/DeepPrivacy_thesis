@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 def build_laplacian_pyramid(img, levels):
     gaussian = img.copy()
@@ -18,6 +19,9 @@ def build_laplacian_pyramid(img, levels):
 
 
 def transfer_lighting(start_layer, end_pyramid, n_layers):
+    start_layer = np.transpose(start_layer, (2, 1, 0))
+    print(start_layer.shape)
+    print(end_pyramid[0].shape)
     end_pyramid[0] = start_layer
     ls_ = end_pyramid[0]
     for i in range(1, n_layers):
