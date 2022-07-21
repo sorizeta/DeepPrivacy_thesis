@@ -3,7 +3,7 @@ import os
 import typing
 import argparse
 from deep_privacy import logger
-from deep_privacy.inference.th_deep_privacy_anonymizer import DeepPrivacyAnonymizer
+from deep_privacy.inference.deep_privacy_anonymizer import DeepPrivacyAnonymizer
 from deep_privacy.build import build_anonymizer, available_models
 video_suffix = [".mp4"]
 image_suffix = [".jpg", ".jpeg", ".png"]

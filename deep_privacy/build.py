@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from deep_privacy import logger, torch_utils
 from deep_privacy.config import Config
 from deep_privacy.inference.infer import load_model_from_checkpoint
-from deep_privacy.inference.th_deep_privacy_anonymizer import DeepPrivacyAnonymizer
+from deep_privacy.inference.deep_privacy_anonymizer import DeepPrivacyAnonymizer
 
 available_models = [
     "fdf128_rcnn512",

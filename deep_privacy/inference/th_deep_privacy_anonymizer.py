@@ -99,9 +99,8 @@ class DeepPrivacyAnonymizer(Anonymizer):
                     face, to_uint8=False, denormalize=True)
                 start = idx * self.batch_size
                 anonymized_faces[start:start + self.batch_size] = face
-            anonymized_image = image_annotation.stitch_faces(anonymized_faces)
-            fake_face_lighting = build_laplacian_pyramid(anonymized_image, 6)
-            anonymized_image = transfer_lighting(face_lighting[face_idx].cpu().detach().numpy(), fake_face_lighting, 6)
+
+            anonymized_image = image_annotation.th_stitch_faces(anonymized_faces, face_lighting[face_idx].cpu().detach().numpy())
             anonymized_images.append(anonymized_image)
             if self.save_debug:
                 num_faces = len(batches["condition"])

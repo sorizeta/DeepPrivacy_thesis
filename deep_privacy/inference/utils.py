@@ -3,22 +3,25 @@ import numpy as np
 
 def build_laplacian_pyramid(img, levels):
     gaussian = img.copy()
+    print(gaussian.shape)
     gp_imgs = [gaussian]
     
     for i in range(levels):
         gaussian = cv2.pyrDown(gaussian)
         gp_imgs.append(gaussian)
-
+    
     laplacian_pyramid = [gp_imgs[levels - 1]]
     
     for i in range(levels - 1, 0, -1):
         GE = cv2.pyrUp(gp_imgs[i])
+        print(gp_imgs[i - 1].shape)
         L = cv2.subtract(gp_imgs[i-1],GE)
         laplacian_pyramid.append(L)
     return laplacian_pyramid
 
 
 def transfer_lighting(start_layer, end_pyramid, n_layers):
+    
     start_layer = np.transpose(start_layer, (2, 1, 0))
     print(start_layer.shape)
     print(end_pyramid[0].shape)
