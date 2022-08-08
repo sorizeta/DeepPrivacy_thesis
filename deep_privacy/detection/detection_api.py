@@ -15,8 +15,8 @@ detector_dir = '/home/ubuntu/networks/DeepPrivacy/deep_privacy/face-datasets/'
 sys.path.insert(0, detector_dir+'facealign')
 sys.path.insert(0, detector_dir+'util')
 
-#from MtcnnPycaffe import MtcnnDetector
-#import PyLandmark as LandmarkDetector
+from MtcnnPycaffe import MtcnnDetector
+import PyLandmark as LandmarkDetector
 
 
 def tight_crop(array):
@@ -217,12 +217,14 @@ class ImageAnnotation:
                 im, M=matrix, dsize=(self.im.shape[1], self.im.shape[0]))
         return im
 
-    def th_stitch_faces(self, anonymized_faces, face_lighting):
+    def th_stitch_faces(self, anonymized_faces):
         """
             Copies the generated face(s) to the original face
             Make sure that an already anonymized face is not overwritten.
         """
         im = self.im.copy()
+        face_pyr = build_laplacian_pyramid(im, 4)
+        print(face_pyr[0].shape)
         mask_not_filled = np.ones_like(im, dtype=bool)
         for face_idx, face in enumerate(anonymized_faces):
             orig_bbox = self.bbox_XYXY[face_idx]
@@ -231,8 +233,6 @@ class ImageAnnotation:
                 expanded_bbox[2] - expanded_bbox[0],
                 expanded_bbox[3] - expanded_bbox[1]
             )
-            fake_face_lighting = build_laplacian_pyramid(face, 6)
-            face = transfer_lighting(face_lighting, fake_face_lighting, 6)
             face = cv2.resize(face, orig_face_shape)
             inpainted_im = self.paste_face(face_idx, face) * 255
             mask_ = cut_face(mask_not_filled, orig_bbox)
@@ -246,6 +246,11 @@ class ImageAnnotation:
                 
                 x0, y0, x1, y1 = clip_box(expanded_bbox, im)
                 im[y0:y1, x0:x1] = cv2.resize(face, orig_shape)
+            fake_face_lighting = build_laplacian_pyramid(im, 4)
+            print(fake_face_lighting[0].shape)
+            fake_face_lighting[0] = face_pyr[0]
+            im = transfer_lighting(fake_face_lighting, 4)
+
         return im
 
     def stitch_faces(self, anonymized_faces):
@@ -254,6 +259,7 @@ class ImageAnnotation:
             Make sure that an already anonymized face is not overwritten.
         """
         im = self.im.copy()
+        orig_im = self.im.copy()
         mask_not_filled = np.ones_like(im, dtype=bool)
         for face_idx, face in enumerate(anonymized_faces):
             orig_bbox = self.bbox_XYXY[face_idx]
@@ -275,6 +281,9 @@ class ImageAnnotation:
                 
                 x0, y0, x1, y1 = clip_box(expanded_bbox, im)
                 im[y0:y1, x0:x1] = cv2.resize(face, orig_shape)
+            np_arr = orig_im == im
+            print(np_arr)
+            np.save('imgarr.npy', np_arr)
         return im
 
 @DETECTOR_REGISTRY.register_module
@@ -356,8 +365,8 @@ class RCNNDetector(BaseDetector):
 class PyLandmarkDetector(BaseDetector):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.face_detector = MtcnnDetector()
-        #LandmarkDetector.create("/home/ubuntu/networks/DeepPrivacy/deep_privacy/detection/model/")
+        self.face_detector = MtcnnDetector()
+        LandmarkDetector.create("/home/ubuntu/networks/DeepPrivacy/deep_privacy/detection/model/")
 
 
     def detect_faces(self, images, im_bboxes):
@@ -380,9 +389,11 @@ class PyLandmarkDetector(BaseDetector):
             if image_bboxes.shape[0] > 0:
                 rect = [int(image_bboxes[0][0]), int(image_bboxes[0][1]),
                         int(image_bboxes[0][2]-image_bboxes[0][0]), int(image_bboxes[0][3]-image_bboxes[0][1])]
-                '''
+               
                 pts = LandmarkDetector.detect(im, rect, [], 1)
                 pts = np.array(pts)
+                 # 45 landmark version below
+                '''
                 mask = np.zeros(68, dtype=int)
                 mask[0] = 1
                 mask[16] = 1
@@ -392,9 +403,9 @@ class PyLandmarkDetector(BaseDetector):
                 pts = np.concatenate((pts, np.array([0, 255, 255, 255])))
                 pts = np.reshape(pts, (-1, 45, 2))
                 '''
-                pts = np.random(1, 45, 2) * 255
+                pts = np.reshape(pts, (-1, 68, 2))
             else:
-                pts = np.empty([1, 45, 2])
+                pts = np.empty([1, 68, 2])
             keypoints.append(pts)
 
         keypoints = np.array(keypoints)
@@ -406,6 +417,3 @@ class PyLandmarkDetector(BaseDetector):
         keypoints = self.detect_keypoints(images, im_bboxes)
 
         return self.post_process_detections(images, im_bboxes, keypoints)
-
-
-
