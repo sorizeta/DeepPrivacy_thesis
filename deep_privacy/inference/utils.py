@@ -32,3 +32,34 @@ def transfer_lighting(end_pyramid, n_layers):
     
     ls_ = ls_.astype(np.uint8)
     return ls_
+
+
+def get_mean_and_std(mat):
+    mat_mean, mat_std = cv2.meanStdDev(mat)
+    mat_mean = np.hstack(np.around(mat_mean,2))
+    mat_std = np.hstack(np.around(mat_std,2))
+    return mat_mean, mat_std
+
+
+def apply_color_transfer(source_img, target_img):
+    source_img = cv2.cvtColor(source_img, cv2.COLOR_RGB2LAB)
+    target_img = cv2.cvtColor(target_img, cv2.COLOR_RGB2LAB)
+
+    source_mean, source_std = get_mean_and_std(source_img)
+    target_mean, target_std = get_mean_and_std(target_img)
+
+    height, width, channel = source_img.shape
+    for i in range(0,height):
+        for j in range(0,width):
+            for k in range(0,channel):
+                x = source_img[i,j,k]
+                x = ((x - source_mean[k]) * (target_std[k] / source_std[k])) + target_mean[k]
+                # round or +0.5
+                x = round(x)
+                # boundary check
+                x = 0 if x < 0 else x
+                x = 255 if x > 255 else x
+                source_img[i,j,k] = x
+    
+    colored_image = cv2.cvtColor(source_img, cv2.COLOR_LAB2RGB)
+    return colored_image

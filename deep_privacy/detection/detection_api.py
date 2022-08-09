@@ -223,9 +223,11 @@ class ImageAnnotation:
             Make sure that an already anonymized face is not overwritten.
         """
         im = self.im.copy()
-        ycrcb_orig = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
-        _, _, y_orig = cv2.split(ycrcb_orig)
-        face_pyr = build_laplacian_pyramid(y_orig, 5)
+        # getting HSV for relighting
+        hsv_orig = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
+
+        _, _, v_orig = cv2.split(hsv_orig)
+        face_pyr = build_laplacian_pyramid(v_orig, 5)
         mask_not_filled = np.ones_like(im, dtype=bool)
         for face_idx, face in enumerate(anonymized_faces):
             orig_bbox = self.bbox_XYXY[face_idx]
@@ -247,13 +249,14 @@ class ImageAnnotation:
                 
                 x0, y0, x1, y1 = clip_box(expanded_bbox, im)
                 im[y0:y1, x0:x1] = cv2.resize(face, orig_shape)
-
-        ycrcb_fake = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
-        Cr_fake, Cb_fake, y_fake = cv2.split(ycrcb_fake)
-        fake_face_lighting = build_laplacian_pyramid(y_fake, 5)
+        
+        # getting hsv to relight 
+        hsv_fake = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
+        h_fake, s_fake, v_fake = cv2.split(hsv_fake)
+        fake_face_lighting = build_laplacian_pyramid(v_fake, 5)
         fake_face_lighting[0] = face_pyr[0]
-        y_corr = transfer_lighting(fake_face_lighting, 5)
-        im = cv2.merge((Cr_fake, Cb_fake, y_corr))
+        v_corr = transfer_lighting(fake_face_lighting, 5)
+        im = cv2.merge((h_fake, s_fake, v_corr))
         im = cv2.cvtColor(im, cv2.COLOR_HSV2RGB)
 
         return im

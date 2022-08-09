@@ -4,7 +4,7 @@ import deep_privacy.torch_utils as torch_utils
 import cv2
 import pathlib
 import typing
-from deep_privacy.inference.utils import build_laplacian_pyramid, transfer_lighting
+from deep_privacy.inference.utils import *
 from deep_privacy.detection.detection_api import ImageAnnotation
 from .anonymizer import Anonymizer
 from . import infer
@@ -187,7 +187,9 @@ class DeepPrivacyAnonymizer(Anonymizer):
                 start = idx * self.batch_size
                 anonymized_faces[start:start + self.batch_size] = face
 
+            original_image = image_annotation.im
             anonymized_image = image_annotation.th_stitch_faces(anonymized_faces)
+            anonymized_image = apply_color_transfer(anonymized_image, original_image)
             anonymized_images.append(anonymized_image)
 
             if self.save_debug:
