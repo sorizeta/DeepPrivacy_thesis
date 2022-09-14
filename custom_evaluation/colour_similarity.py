@@ -3,8 +3,8 @@ import argparse
 import numpy as np
 import colour
 
-s_name = ''
-t_name = ''
+s_name = "C:\\Users\\sofia\\Desktop\\addedelab\\00000007.png"
+t_name = "C:\\Users\\sofia\\Desktop\\addedelab-4hsv\\00000007.png"
 
 s_image = cv2.imread(s_name).astype(np.float32) / 255
 t_image = cv2.imread(t_name).astype(np.float32) / 255
@@ -15,7 +15,7 @@ lab_t_image = cv2.cvtColor(t_image, cv2.COLOR_BGR2LAB)
 L_s, A_s, B_s = cv2.split(lab_s_image)
 L_t, A_t, B_t = cv2.split(lab_t_image)
 
-delta_E = colour.deltaE(lab_s_image, lab_t_image)
+delta_E = np.mean(colour.difference.delta_E_CIE2000(lab_s_image, lab_t_image))
 delta_L = np.mean(np.add(-L_t, L_s))
 delta_C = np.mean(
     np.add(
