@@ -49,8 +49,8 @@ def calculate_deltas(s_path, dest_folder, deltas_filename):
                 np.add(-L_t, L_s)
             )
         )
-        delta_C = np.abs(
-            np.mean(
+        delta_C = np.mean(
+            np.abs(
                 np.add(
                     -np.sqrt(np.power(A_t, 2) + np.power(B_t, 2)),
                     np.sqrt(np.power(A_s, 2) + np.power(B_s, 2))
