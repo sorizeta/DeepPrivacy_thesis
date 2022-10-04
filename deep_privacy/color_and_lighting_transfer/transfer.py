@@ -1,4 +1,5 @@
 import glob
+from re import search
 import cv2
 import numpy as np
 import argparse
@@ -72,14 +73,14 @@ def apply_color_transfer(target_img, ref_img):
             np.multiply(
                 np.add(
                     ch,
-                    -source_mean[:, :, k]
+                    -source_mean[k]
                 ),
                 np.divide(
-                    ref_std[:, :, k],
-                    source_std[:, :, k]
+                    ref_std[k],
+                    source_std[k]
                 )
             ),
-            ref_mean[:, :, k])
+            ref_mean[k])
         x = np.round(ch)
         x = np.clip(ch, 0, 255)
         target_img[:, :, k] = x
@@ -98,16 +99,18 @@ if __name__ == "__main__":
 
     src_folder = os.path.abspath(args.src_folder)
     dest_folder = os.path.abspath(args.dest_folder)
-
+    
     allowed_file_ext = ['.jpg', '.png', '.jpeg']
     source_files = []
     
     for type in allowed_file_ext:
-        source_files.append = glob.glob(src_folder + '/**/*' + type)
-    
+        search_path = os.path.join(src_folder, '*' + type)
+        source_files = source_files + glob.glob(search_path)
+        
     for image in source_files:
-        filename = image.split('/')[-1]
-        anonymised_image = dest_folder + filename
+        filename = os.path.basename(image)
+        anonymised_image = os.path.join(dest_folder, filename)
+        print(anonymised_image)
         if os.path.exists(anonymised_image):
             
             source_image = cv2.imread(image)
@@ -115,7 +118,7 @@ if __name__ == "__main__":
             
             anon_image_light = transfer_lighting(source_image, anon_image)
             final_image = apply_color_transfer(anon_image_light, source_image)
-            
-            cv2.imwrite(dest_folder + filename.split('.')[0] + '_corrected' + filename.split('.')[1], final_image)
+            new_filename = os.path.join(dest_folder, 'corr_' + filename)
+            cv2.imwrite(new_filename, final_image)
             
         
