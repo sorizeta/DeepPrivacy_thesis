@@ -37,7 +37,7 @@ def expand_pyramid(end_pyramid, n_layers):
     return ls_
 
 
-def transfer_lighting(source_image, target_image):
+def transfer_lighting_ycbcr(source_image, target_image):
     s_ycrcb = cv2.cvtColor(source_image, cv2.COLOR_RGB2YCrCb)
     t_ycrcb = cv2.cvtColor(target_image, cv2.COLOR_RGB2YCrCb)
     
@@ -54,6 +54,38 @@ def transfer_lighting(source_image, target_image):
     im = cv2.merge((final_y, t_cr, t_cb))
     im = cv2.cvtColor(im, cv2.COLOR_YCrCb2RGB)
     
+    return im
+
+
+def transfer_lighting_hsv(source_image, target_image):
+    s_hsv = cv2.cvtColor(source_image, cv2.COLOR_RGB2HSV)
+    t_hsv = cv2.cvtColor(target_image, cv2.COLOR_RGB2HSV)
+    
+    _, _, s_v = cv2.split(s_hsv)
+    t_h, t_s, t_v = cv2.split(t_hsv)
+    
+    source_pyramid = build_laplacian_pyramid(s_v, 4)
+    target_pyramid = build_laplacian_pyramid(t_v, 4)
+    
+    target_pyramid[0] = source_pyramid[0]
+    
+    final_v = expand_pyramid(target_pyramid, 4)
+    
+    im = cv2.merge((t_h, t_s, final_v))
+    im = cv2.cvtColor(im, cv2.COLOR_HSV2RGB)
+    
+    return im
+
+
+def transfer_lighting_rgb(source_image, target_image):
+    
+    source_pyramid = build_laplacian_pyramid(source_image, 4)
+    target_pyramid = build_laplacian_pyramid(target_image, 4)
+    
+    target_pyramid[0] = source_pyramid[0]
+    
+    im = expand_pyramid(target_pyramid, 4)
+        
     return im
 
 
@@ -95,8 +127,9 @@ if __name__ == "__main__":
     parser.add_argument('src_folder', type=str, help="Original image folder")
     parser.add_argument('dest_folder', type=str,
                         help="Anonymised image folder")
+    parser.add_argument('--mode', type=str,
+                    help="Colour space for transfer learning. Values available are rgb, ycbcr and hsv", default='hsv')
     args = parser.parse_args()
-
     src_folder = os.path.abspath(args.src_folder)
     dest_folder = os.path.abspath(args.dest_folder)
     
@@ -110,13 +143,22 @@ if __name__ == "__main__":
     for image in source_files:
         filename = os.path.basename(image)
         anonymised_image = os.path.join(dest_folder, filename)
-        print(anonymised_image)
         if os.path.exists(anonymised_image):
+            mode = (args.mode).lower()
             
             source_image = cv2.imread(image)
             anon_image = cv2.imread(anonymised_image)
             
-            anon_image_light = transfer_lighting(source_image, anon_image)
+            if mode == 'rgb':
+                anon_image_light = transfer_lighting_rgb(source_image, anon_image)
+            elif mode == 'hsv':
+                anon_image_light = transfer_lighting_hsv(source_image, anon_image)
+            elif mode == 'ycbcr':
+                anon_image_light = transfer_lighting_ycbcr(source_image, anon_image)
+            else:
+                raise Exception('No colour space specified, or unknown colour space specified')
+
+
             final_image = apply_color_transfer(anon_image_light, source_image)
             new_filename = os.path.join(dest_folder, 'corr_' + filename)
             cv2.imwrite(new_filename, final_image)
