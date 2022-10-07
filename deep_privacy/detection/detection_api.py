@@ -6,17 +6,16 @@ import cv2
 import sys
 from deep_privacy import torch_utils
 from deep_privacy.box_utils import clip_box, expand_bbox, cut_face
-from deep_privacy.inference.utils import build_laplacian_pyramid, transfer_lighting
 from . import keypoint_rcnn
 from .build import DETECTOR_REGISTRY
 from .utils import match_bbox_keypoint
 
-detector_dir = '/home/ubuntu/networks/DeepPrivacy/deep_privacy/face-datasets/'
-sys.path.insert(0, detector_dir+'facealign')
-sys.path.insert(0, detector_dir+'util')
+# detector_dir = '/home/ubuntu/networks/DeepPrivacy/deep_privacy/face-datasets/'
+# sys.path.insert(0, detector_dir+'facealign')
+# sys.path.insert(0, detector_dir+'util')
 
-from MtcnnPycaffe import MtcnnDetector
-import PyLandmark as LandmarkDetector
+# from MtcnnPycaffe import MtcnnDetector
+# import PyLandmark as LandmarkDetector
 
 
 def tight_crop(array):
@@ -216,50 +215,6 @@ class ImageAnnotation:
             im = cv2.warpAffine(
                 im, M=matrix, dsize=(self.im.shape[1], self.im.shape[0]))
         return im
-
-    # def th_stitch_faces(self, anonymized_faces):
-    #     """
-    #         Copies the generated face(s) to the original face
-    #         Make sure that an already anonymized face is not overwritten.
-    #     """
-    #     im = self.im.copy()
-    #     # getting HSV for relighting
-    #     hsv_orig = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
-
-    #     _, _, v_orig = cv2.split(hsv_orig)
-    #     face_pyr = build_laplacian_pyramid(v_orig, 5)
-    #     mask_not_filled = np.ones_like(im, dtype=bool)
-    #     for face_idx, face in enumerate(anonymized_faces):
-    #         orig_bbox = self.bbox_XYXY[face_idx]
-    #         expanded_bbox = self.get_expanded_bbox(face_idx)
-    #         orig_face_shape = (
-    #             expanded_bbox[2] - expanded_bbox[0],
-    #             expanded_bbox[3] - expanded_bbox[1]
-    #         )
-    #         face = cv2.resize(face, orig_face_shape)
-    #         inpainted_im = self.paste_face(face_idx, face) * 255
-    #         mask_ = cut_face(mask_not_filled, orig_bbox)
-    #         x0, y0, x1, y1 = orig_bbox
-    #         im[y0:y1, x0:x1][mask_] = inpainted_im[y0:y1, x0:x1][mask_]
-    #         mask_not_filled[y0:y1, x0:x1] = 0
-    #         if self.resize_background:
-    #             face = cut_face(im, expanded_bbox, pad_im=False)
-    #             orig_shape = face.shape[:2][::-1]
-    #             face = cv2.resize(face, (self.generator_imsize*2, self.generator_imsize*2))
-                
-    #             x0, y0, x1, y1 = clip_box(expanded_bbox, im)
-    #             im[y0:y1, x0:x1] = cv2.resize(face, orig_shape)
-        
-    #     # getting hsv to relight 
-    #     hsv_fake = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
-    #     h_fake, s_fake, v_fake = cv2.split(hsv_fake)
-    #     fake_face_lighting = build_laplacian_pyramid(v_fake, 5)
-    #     fake_face_lighting[0] = face_pyr[0]
-    #     v_corr = transfer_lighting(fake_face_lighting, 5)
-    #     im = cv2.merge((h_fake, s_fake, v_corr))
-    #     im = cv2.cvtColor(im, cv2.COLOR_HSV2RGB)
-
-    #     return im
 
     def stitch_faces(self, anonymized_faces):
         """

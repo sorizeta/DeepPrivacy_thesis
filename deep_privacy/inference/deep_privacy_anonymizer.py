@@ -4,7 +4,6 @@ import deep_privacy.torch_utils as torch_utils
 import cv2
 import pathlib
 import typing
-from deep_privacy.inference.utils import *
 from deep_privacy.detection.detection_api import ImageAnnotation
 from .anonymizer import Anonymizer
 from . import infer
