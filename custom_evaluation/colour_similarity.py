@@ -18,7 +18,7 @@ def create_crop(cell):
 
 def retrieve_bounding_box(filename, bbox_file):
     # Here we assume that the bounding box file is a csv file
-    bboxes = pd.read_csv(bbox_file, names=["filename", "bbox"], sep=';')
+    bboxes = pd.read_csv(bbox_file, names=["filename", "bbox"], sep=',')
     line = bboxes[bboxes['filename'].str.contains(filename)]
     bbox = create_crop(line)
     return bbox
@@ -27,11 +27,17 @@ def retrieve_bounding_box(filename, bbox_file):
 def calculate_deltas(s_path, dest_folder, deltas_filename):
     filename = s_path.split('\\')[-1]
     d_path = dest_folder + '\\' + filename
-    bbox = retrieve_bounding_box(filename, "all_bounding_boxes.csv")
+    bbox = retrieve_bounding_box(filename, "prova3_boxes.csv")
     try:
         s_image = cv2.imread(s_path).astype(np.float32) / 255
         t_image = cv2.imread(d_path).astype(np.float32) / 255
         
+        
+        height, width, _ = s_image.shape
+        height_t, width_t, _ = t_image.shape
+        if height != height_t:
+            t_image = cv2.resize(t_image, (width, height))
+            
         
         crop_s_image = s_image[bbox[0]:bbox[2], bbox[1]:bbox[3]]
         crop_t_image = t_image[bbox[0]:bbox[2], bbox[1]:bbox[3]]
@@ -57,7 +63,6 @@ def calculate_deltas(s_path, dest_folder, deltas_filename):
                 )
             )
         )
-        
         with open(deltas_filename, 'a') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow([filename, delta_L, delta_C, delta_E])
